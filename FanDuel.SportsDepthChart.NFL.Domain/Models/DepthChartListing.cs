@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FanDuel.SportsDepthChart.NFL.Domain.Models;
 
-public record DepthChartListing(Player Player, NflPosition Position, int Depth)
+public record DepthChartListing(Player Player, NflPosition Position)
 {
-    public override string ToString() => $"{Position} - {Player} (Depth: {Depth})";
+    public override string ToString() => $"{Position} - {Player}";
 }

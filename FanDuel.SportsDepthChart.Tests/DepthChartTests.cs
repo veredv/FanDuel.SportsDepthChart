@@ -19,8 +19,8 @@ public class DepthChartTests
     private const int PlayerNumber2 = 2;
     private const int PlayerNumber3 = 3;
 
-    private static readonly NflPosition PositionQB = NflPosition.QB;
-    private static readonly NflPosition PositionRB = NflPosition.RB;
+    private const NflPosition Quarterback = NflPosition.QB;
+    private const NflPosition RunningBack = NflPosition.RB;
 
     private readonly DepthChart depthChart;
 
@@ -37,32 +37,32 @@ public class DepthChartTests
     [Fact]
     public void AddPlayer_ShouldAddPlayerAtSpecifiedDepth_WhenPositionDepthSpecified()
     {
-        depthChart.AddPlayer(PositionQB, player1);
-        depthChart.AddPlayer(PositionQB, player2, 0);
+        depthChart.AddPlayer(Quarterback, player1);
+        depthChart.AddPlayer(Quarterback, player2, 0);
 
-        var player1Backups = depthChart.GetBackups(PositionQB, player1);
-        var player2Backups = depthChart.GetBackups(PositionQB, player2);
+        var player1Backups = depthChart.GetBackups(Quarterback, player1);
+        var player2Backups = depthChart.GetBackups(Quarterback, player2);
 
-        player1Backups.Should().ContainSingle().Which.Should().Be(player1);
-        player2Backups.Should().BeEmpty();
+        player1Backups.Should().BeEmpty(); 
+        player2Backups.Should().ContainSingle().Which.Should().Be(player1);
     }
 
     [Fact]
     public void AddPlayer_ShouldAddPlayerAtSpecifiedDepth_WhenPlayerPlayesInMultiplePositions()
     {
-        depthChart.AddPlayer(PositionQB, player1, 0);
-        depthChart.AddPlayer(PositionQB, player2, 1);
-        depthChart.AddPlayer(PositionQB, player3, 2);
+        depthChart.AddPlayer(Quarterback, player1, 0);
+        depthChart.AddPlayer(Quarterback, player2, 1);
+        depthChart.AddPlayer(Quarterback, player3, 2);
 
-        depthChart.AddPlayer(PositionRB, player3, 0);
-        depthChart.AddPlayer(PositionRB, player2, 1);
+        depthChart.AddPlayer(RunningBack, player3, 0);
+        depthChart.AddPlayer(RunningBack, player2, 1);
 
-        var qBPlayer1backups = depthChart.GetBackups(PositionQB, player1);
-        var qBPlayer2backups = depthChart.GetBackups(PositionQB, player2);
-        var qBPlayer3backups = depthChart.GetBackups(PositionQB, player3);
-        var rBPlayer1backups = depthChart.GetBackups(PositionQB, player1);
-        var rBPlayer2backups = depthChart.GetBackups(PositionQB, player2);
-        var rBPlayer3backups = depthChart.GetBackups(PositionQB, player3);
+        var qBPlayer1backups = depthChart.GetBackups(Quarterback, player1);
+        var qBPlayer2backups = depthChart.GetBackups(Quarterback, player2);
+        var qBPlayer3backups = depthChart.GetBackups(Quarterback, player3);
+        var rBPlayer1backups = depthChart.GetBackups(RunningBack, player1);
+        var rBPlayer2backups = depthChart.GetBackups(RunningBack, player2);
+        var rBPlayer3backups = depthChart.GetBackups(RunningBack, player3);
 
         depthChart.Count().Should().Be(2); //Sanity
 
@@ -80,13 +80,13 @@ public class DepthChartTests
     [Fact]
     public void AddPlayer_ShouldAddPlayerToEndOfDepthChart_WhenPositionDepthNotSpecified()
     {
-        depthChart.AddPlayer(PositionQB, player1);
-        depthChart.AddPlayer(PositionQB, player2);
-        depthChart.AddPlayer(PositionQB, player3);
+        depthChart.AddPlayer(Quarterback, player1);
+        depthChart.AddPlayer(Quarterback, player2);
+        depthChart.AddPlayer(Quarterback, player3);
 
-        var qBPlayer1backups = depthChart.GetBackups(PositionQB, player1);
-        var qBPlayer2backups = depthChart.GetBackups(PositionQB, player2);
-        var qBPlayer3backups = depthChart.GetBackups(PositionQB, player3);
+        var qBPlayer1backups = depthChart.GetBackups(Quarterback, player1);
+        var qBPlayer2backups = depthChart.GetBackups(Quarterback, player2);
+        var qBPlayer3backups = depthChart.GetBackups(Quarterback, player3);
 
         depthChart.Count().Should().Be(1); //Sanity
 
@@ -103,6 +103,27 @@ public class DepthChartTests
     {
         Action act = () => depthChart.AddPlayer((NflPosition)600, player1);
 
-        act.Should().Throw<ArgumentException>();
+        act.Should().Throw<ArgumentException>()
+            .And.Message.Should().Be($"Position value 600 is not defined in {nameof(NflPosition)}");
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(0, 1)]
+    public void AddPlayer_ShouldThrowException_WhenPlayerAddedInSamePosition(int initalDepth, int updatedDepth)
+    {
+        depthChart.AddPlayer(Quarterback, player1, initalDepth);
+
+        Action act = () => depthChart.AddPlayer(Quarterback, player1, updatedDepth);
+
+        act.Should().Throw<ArgumentException>()
+            .And.Message.Should().Be($"Player {player1} already listed for position {Quarterback}.");
+    }
+
+    [Fact]
+    public void AddPlayer_ShouldThrowException_WhenPlayerWithSameNumberExists()
+    {
+        Assert.True(false);
+       //Todo
     }
 }
