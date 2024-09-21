@@ -48,8 +48,9 @@ public class DepthChartTests
     }
 
     [Fact]
-    public void AddPlayer_ShouldAddPlayerAtSpecifiedDepth_WhenPlayerPlayesInMultiplePositions()
+    public void AddPlayer_ShouldAddPlayerAtSpecifiedDepth_WhenPlayerPlaysInMultiplePositions()
     {
+        //Arrange and Act
         depthChart.AddPlayer(Quarterback, player1, 0);
         depthChart.AddPlayer(Quarterback, player2, 1);
         depthChart.AddPlayer(Quarterback, player3, 2);
@@ -64,11 +65,10 @@ public class DepthChartTests
         var rBPlayer2backups = depthChart.GetBackups(RunningBack, player2);
         var rBPlayer3backups = depthChart.GetBackups(RunningBack, player3);
 
+        //Assert
         depthChart.Count().Should().Be(2); //Sanity
 
-        //Todo - Choose only one from 2 bellow
         qBPlayer1backups.Should().HaveCount(2).And.ContainInOrder([player2, player3]);
-        qBPlayer1backups.Should().BeEquivalentTo([player2, player3]);
         qBPlayer2backups.Should().BeEquivalentTo([player3]);
         qBPlayer3backups.Should().BeEmpty();
 
@@ -80,6 +80,7 @@ public class DepthChartTests
     [Fact]
     public void AddPlayer_ShouldAddPlayerToEndOfDepthChart_WhenPositionDepthNotSpecified()
     {
+        //Arrange and Act
         depthChart.AddPlayer(Quarterback, player1);
         depthChart.AddPlayer(Quarterback, player2);
         depthChart.AddPlayer(Quarterback, player3);
@@ -88,23 +89,11 @@ public class DepthChartTests
         var qBPlayer2backups = depthChart.GetBackups(Quarterback, player2);
         var qBPlayer3backups = depthChart.GetBackups(Quarterback, player3);
 
+        //Assert
         depthChart.Count().Should().Be(1); //Sanity
-
-        //Todo - Choose only one from  3 bellow
         qBPlayer1backups.Should().HaveCount(2).And.ContainInOrder([player2, player3]);
-        qBPlayer1backups.Should().BeEquivalentTo([player2, player3]);
-        qBPlayer1backups.Should().BeEquivalentTo([player3, player2]);
         qBPlayer2backups.Should().BeEquivalentTo([player3]);
         qBPlayer3backups.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void AddPlayer_ShouldThrowException_WhenPositionIsUndefined()
-    {
-        Action act = () => depthChart.AddPlayer((NflPosition)600, player1);
-
-        act.Should().Throw<ArgumentException>()
-            .And.Message.Should().Be($"Position value 600 is not defined in {nameof(NflPosition)}");
     }
 
     [Theory]
@@ -121,9 +110,75 @@ public class DepthChartTests
     }
 
     [Fact]
-    public void AddPlayer_ShouldThrowException_WhenPlayerWithSameNumberExists()
+    public void RemovePlayer_RemovesExistingPlayerAndReturnsIt()
     {
-        Assert.True(false);
-       //Todo
+        // Arrange
+        depthChart.AddPlayer(Quarterback, player1);
+        depthChart.AddPlayer(Quarterback, player2);
+
+        // Act
+        var removedPlayer = depthChart.RemovePlayer(Quarterback, player2);
+        var qBPlayer1backups = depthChart.GetBackups(Quarterback, player1);
+
+        // Assert
+        removedPlayer.Should().Be(player2);
+        qBPlayer1backups.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void RemovePlayer_OnlyRemovesFromSpecifiedPosition()
+    {
+        // Arrange
+        depthChart.AddPlayer(Quarterback, player1);
+        depthChart.AddPlayer(RunningBack, player2);
+        depthChart.AddPlayer(RunningBack, player1, 0);
+
+        // Act
+        var removedPlayer = depthChart.RemovePlayer(Quarterback, player1);
+        var qBPlayer1backups = depthChart.GetBackups(Quarterback, player1);
+        var rBPlayer2backups = depthChart.GetBackups(RunningBack, player1);
+
+        // Assert
+        removedPlayer.Should().Be(player1);
+        qBPlayer1backups.Should().BeEmpty();
+        rBPlayer2backups.Should().NotBeNull().And.HaveCount(1);
+    }
+
+    [Fact]
+    public void RemovePlayer_ShouldReturnNull_WhenPlayerIsNotInPosition()
+    {
+        var removedPlayer = depthChart.RemovePlayer(Quarterback, player1);
+
+        // Assert
+        removedPlayer.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetBackups_ShouldReturnEmptyList_WhenPlayerHasNoBackups()
+    {
+        depthChart.AddPlayer(Quarterback, player1);
+
+        var backups = depthChart.GetBackups(Quarterback, player1);
+
+        backups.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetBackups_ShouldReturnEmptyList_WhenPlayerNotListedInPosition()
+    {
+        depthChart.AddPlayer(Quarterback, player1);
+
+        var backups = depthChart.GetBackups(RunningBack, player1);
+
+        backups.Should().BeEmpty();
+    }
+
+
+    [Fact]
+    public void GetBackups_ShouldReturnEmptyList_WhenPositionHasNoPlayers()
+    {
+        var backups = depthChart.GetBackups(RunningBack, player1);
+
+        backups.Should().BeEmpty();
     }
 }

@@ -7,45 +7,77 @@ namespace FanDuel.SportsDepthChart.NFL.Domain.Entities;
 
 public class DepthChart
 {
-    private readonly Dictionary<NflPosition, List<DepthChartListing>> depthCharts = [];
+    private readonly Dictionary<NflPosition, List<DepthChartListing>> depthChart = [];
+    private readonly Dictionary<NflPosition, HashSet<int>> playerNumbersPerPosition = [];
 
     public virtual void AddPlayer(NflPosition position, Player player, int? depth = null)
     {
-        if (!_depthCharts.ContainsKey(position))
+        List<DepthChartListing> depthChartEntry;
+        HashSet<int> playerExistenceEntry;
+        if (!depthChart.TryGetValue(position, out List<DepthChartListing>? value))
         {
-            _depthCharts[position] = new List<DepthChartListing>();
+            depthChartEntry = depthChart[position] = [];
+            playerExistenceEntry = playerNumbersPerPosition[position] = [];
+        } 
+        else 
+        {
+            depthChartEntry = value;
+            playerExistenceEntry = playerNumbersPerPosition[position];
+        }
+        
+        if (playerExistenceEntry.Contains(player.Number))
+        {
+            throw new ArgumentException($"Player {player} already listed for position {position}.");
         }
 
-        var depthChart = _depthCharts[position];
-
+        var playerListing = new DepthChartListing(player, position);
         if (depth is null)
         {
-            depthChart.Add(new DepthChartListing(player, position, depthChart.Count));
+            depthChartEntry.Add(playerListing);
         }
         else
         {
-            depthChart.Insert(depth.Value, new DepthChartListing(player, position, depth.Value));
+            if (depth > depthChartEntry?.Count)
+            {
+                throw new ArgumentException($"Depth provided is {depth}, but should be between 0 and {depthChart.Count}");
+            }
 
-        depthCharts[NflPosition.QB] = [new (player1, NflPosition.QB, 1), new (player2, NflPosition.QB, 2)];
+            depthChartEntry!.Insert(depth.Value, playerListing);
+        }
+
+        playerExistenceEntry.Add(player.Number);
     }
 
+    // Remove player from depth chart
     public virtual Player? RemovePlayer(NflPosition position, Player player)
     {
-        //Todo
-        return null;
+        if (!depthChart.TryGetValue(position, out List<DepthChartListing>? depthChartEntry))
+        {
+            return null;
+        }
+
+        var listing = depthChartEntry.FirstOrDefault(l => l.Player.Number == player.Number);
+
+        if (listing == null)
+        {
+            return null;
+        }
+
+        depthChartEntry.Remove(listing);
+
+        return listing.Player;
     }
 
     // Get backups for a player at a given position
     public virtual List<Player> GetBackups(NflPosition position, Player player)
     {
-        if (!depthChart.ContainsKey(position))
+        if (!depthChart.TryGetValue(position, out List<DepthChartListing>? depthChartEntry))
         {
             return [];
         }
 
-        var depthChartForPosition = depthChart[position];
-        return depthChartForPosition
-        .SkipWhile(listing => listing.Player != player) // Skip until we find the player
+        return depthChartEntry
+        .SkipWhile(listing => listing.Player.Number != player.Number) // Skip until we find the player
         .Skip(1) // Skip the player itself
         .Select(listing => listing.Player) // Select remaining players as backups
         .ToList();
@@ -68,10 +100,30 @@ public class DepthChart
                 String.Join(", ", position.Value.Select(listing => listing.ToString()))));
     }
 
-    // Return a copy of the list
-    private List<DepthChartListing> GetDepthChartListings(NflPosition position)
-    {
-        return depthChart.ContainsKey(position) ? new List<DepthChartListing>(depthChart[position]) : new List<DepthChartListing>();
-    }
+    //// Return a copy of the list
+    //private List<DepthChartListing> GetDepthChartListings(NflPosition position)
+    //{
+    //    return depthChart.TryGetValue(position, out List<DepthChartListing>? value) ? new List<DepthChartListing>(value) : [];
+    //}
+
+//// Get the full depth chart
+//public string GetFullDepthChart()
+//{
+//    return string.Join(Environment.NewLine, _depthCharts
+//        .Select(position => $"{position.Key} – " +
+//            string.Join(", ", position.Value.Select(listing => listing.ToString()))));
+//}
+
+//// Safely return depth chart listings for a given position
+//public List<DepthChartListing> GetDepthChartListings(NflPosition position)
+//{
+//    if (!_depthCharts.ContainsKey(position))
+//    {
+//        return new List<DepthChartListing>();
+//    }
+
+//    // Return a copy of the list to prevent external modification
+//    return new List<DepthChartListing>(_depthCharts[position]);
+//}
 
 }

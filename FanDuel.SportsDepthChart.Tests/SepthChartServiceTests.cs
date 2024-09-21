@@ -6,6 +6,8 @@ using FanDuel.SportsDepthChart.NFL.Domain.Entities;
 using FanDuel.SportsDepthChart.NFL.Domain.Models;
 using FanDuel.SportsDepthChart.NFL.Core;
 using FluentAssertions;
+using System.Numerics;
+using System.IO;
 
 namespace FanDuel.SportsDepthChart.Tests;
 
@@ -31,7 +33,7 @@ public class DepthChartServiceTests
     [Theory]
     [InlineData(null)] // No position depth
     [InlineData(1)]    // Specific position depth
-    public void AddPlayerToDepthChart_AddsPlayer_DelegatesToDepthChart(int? positionDepth)
+    public void AddPlayerToDepthChart_DelegatesToDepthChart_WithDepth(int? positionDepth)
     {
         // Arrange
         var player = new Player(PlayerNumber1, PlayerName1);
@@ -44,17 +46,45 @@ public class DepthChartServiceTests
     }
 
     [Fact]
-    public void RemovePlayerFromDepthChart_RemovesPlayer_DelegatesToDepthChart()
+    public void AddPlayerToDepthChart_DelegatesToDepthChart_WithoutDepth()
     {
         // Arrange
         var player = new Player(PlayerNumber1, PlayerName1);
-        depthChart.RemovePlayer(Position, player).Returns(player);
 
         // Act
-        var removedPlayer = service.RemovePlayerFromDepthChart(Position, player);
+        service.AddPlayerToDepthChart(Position, player);
 
         // Assert
-        removedPlayer.Should().Be(player);
+        depthChart.Received().AddPlayer(Position, player);
+    }
+
+    [Fact]
+    public void RemovePlayerFromDepthChart_DelegatesToDepthChart_AndPropagatesValue()
+    {
+        // Arrange
+        var player1 = new Player(PlayerNumber1, PlayerName1);
+        depthChart.RemovePlayer(Position, player1).Returns(player1);
+
+        // Act
+        var removedPlayer = service.RemovePlayerFromDepthChart(Position, player1);
+
+        // Assert
+        removedPlayer.Should().Be(player1);
+    }
+
+    [Fact]
+    public void RemovePlayerFromDepthChart_DelegatesToDepthChart_AndPropagatesNull()
+    {
+        // Arrange
+        var player1 = new Player(PlayerNumber1, PlayerName1);
+        depthChart.RemovePlayer(Position, player1).Returns((Player?)null);
+
+        // Act
+        var removedPlayer = service.RemovePlayerFromDepthChart(Position, player1);
+
+        // Assert
+        depthChart.Received().RemovePlayer(Position, player1);
+        removedPlayer.Should().BeNull();
     }
 
     [Fact]
@@ -62,7 +92,7 @@ public class DepthChartServiceTests
     {
         // Arrange
         var player1 = new Player(PlayerNumber1, PlayerName1);
-        var player2 = new Player(PlayerNumber1, PlayerName1);
+        var player2 = new Player(PlayerNumber2, PlayerName2);
         var backups = new List<Player> { player2 };
 
         depthChart.GetBackups(Position, player1).Returns(backups);
@@ -80,7 +110,6 @@ public class DepthChartServiceTests
         // Arrange
         var player1 = new Player(PlayerNumber1, PlayerName1);
         var player2 = new Player(PlayerNumber2, PlayerName2);
-        var backups = new List<Player> { player2 };
         var service = new DepthChartService(new DepthChart());
 
         service.AddPlayerToDepthChart(Position, player1);
@@ -88,16 +117,16 @@ public class DepthChartServiceTests
 
         var expectedOutput = $"{Position} - (#{player1.Number}, {player1.Name}), (#{player2.Number}, {player2.Name}){Environment.NewLine}";
 
-        using (var stringWriter = new StringWriter())
-        {
-            Console.SetOut(stringWriter);
+        using var stringWriter = new StringWriter();
+        var previousConsoleTextWriter = Console.Out;
+        Console.SetOut(stringWriter);
 
-            // Act
-            service.GetFullDepthChart();
-
-            // Assert
-            var actualOutput = stringWriter.ToString();
-            actualOutput.Should().Be(expectedOutput);
-        }
-    }
+        // Act
+        service.GetFullDepthChart();
+        Console.SetOut(previousConsoleTextWriter);
+        // Assert
+        var actualOutput = stringWriter.ToString();
+        actualOutput.Should().Be(expectedOutput);
+        
+    } 
 }
