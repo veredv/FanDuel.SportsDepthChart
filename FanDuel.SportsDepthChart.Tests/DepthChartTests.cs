@@ -6,6 +6,7 @@ using FanDuel.SportsDepthChart.NFL.Domain.Entities;
 using FanDuel.SportsDepthChart.NFL.Domain.Models;
 using System.Numerics;
 using FluentAssertions;
+using FanDuel.SportsDepthChart.NFL.Core;
 
 namespace FanDuel.SportsDepthChart.Tests;
 
@@ -107,6 +108,22 @@ public class DepthChartTests
 
         act.Should().Throw<ArgumentException>()
             .And.Message.Should().Be($"Player {player1} already listed for position {Quarterback}.");
+    }
+
+    [Fact]
+    public void AddPlayer_After_RemovePlayer_ShouldAddPlayerToDepthChart()
+    {
+        // Arrange
+        depthChart.AddPlayer(Quarterback, player1);
+        depthChart.RemovePlayer(Quarterback, player1);
+
+        // Act
+        depthChart.AddPlayer(Quarterback, player1);
+        var qBPlayer1backups = depthChart.GetBackups(Quarterback, player1);
+
+        // Assert
+        depthChart.Count().Should().Be(1); //Sanity
+        qBPlayer1backups.Should().BeEmpty();
     }
 
     [Fact]
