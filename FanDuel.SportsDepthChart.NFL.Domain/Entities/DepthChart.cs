@@ -11,9 +11,20 @@ public class DepthChart
 
     public virtual void AddPlayer(NflPosition position, Player player, int? depth = null)
     {
-        //Todo
-        var player1 = new Player(1, "Player One");
-        var player2 = new Player(2, "Player Two");
+        if (!_depthCharts.ContainsKey(position))
+        {
+            _depthCharts[position] = new List<DepthChartListing>();
+        }
+
+        var depthChart = _depthCharts[position];
+
+        if (depth is null)
+        {
+            depthChart.Add(new DepthChartListing(player, position, depthChart.Count));
+        }
+        else
+        {
+            depthChart.Insert(depth.Value, new DepthChartListing(player, position, depth.Value));
 
         depthCharts[NflPosition.QB] = [new (player1, NflPosition.QB, 1), new (player2, NflPosition.QB, 2)];
     }
@@ -34,6 +45,8 @@ public class DepthChart
     public IReadOnlyDictionary<NflPosition, ReadOnlyCollection<DepthChartListing>> AsDictionary() => depthCharts.ToDictionary(
         entry => entry.Key,
         entry => entry.Value.AsReadOnly());
+
+    public int Count() => depthCharts.Count;
 
 
     // Get the full depth chart

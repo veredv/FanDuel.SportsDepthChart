@@ -18,8 +18,8 @@ public class DepthChartServiceTests
 
     private static readonly NflPosition Position = NflPosition.QB;
 
-    private DepthChart depthChart;
-    private DepthChartService service;
+    private readonly DepthChart depthChart;
+    private readonly DepthChartService service;
 
 
     public DepthChartServiceTests()
