@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using FanDuel.SportsDepthChart.NFL.Domain.Entities;
+﻿using FanDuel.SportsDepthChart.NFL.Domain.Entities;
 using FanDuel.SportsDepthChart.NFL.Domain.Models;
 
 namespace FanDuel.SportsDepthChart.NFL.Core;
 
-public class DepthChartService
+public class DepthChartService(DepthChart depthChart)
 {
-    private readonly DepthChart depthChart = new();
+    private readonly DepthChart depthChart = depthChart;
 
     public void AddPlayerToDepthChart(NflPosition position, Player player, int? positionDepth = null) =>
         depthChart.AddPlayer(position, player, positionDepth);
 
     // Remove player from depth chart
-    public Player? RemovePlayerFromDepthChart(NflPosition position, Player player) => 
-        depthChart.RemovePlayer(position, player);
+    public Player? RemovePlayerFromDepthChart(NflPosition position, Player player) => depthChart.RemovePlayer(position, player);
 
     // Get backups for a player at a given position
     public List<Player> GetBackups(NflPosition position, Player player) => 
@@ -29,7 +21,8 @@ public class DepthChartService
     {
         foreach (var entry in depthChart.AsDictionary())
         {
-            Console.WriteLine($"{entry.Key}: {entry.Value}");
+            Console.WriteLine(
+                $"{entry.Key} - {string.Join(", ", entry.Value.Select(listing => $"(#{listing.Player.Number}, {listing.Player.Name})"))}");
         }
     }
 }

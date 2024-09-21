@@ -9,28 +9,26 @@ public class DepthChart
 {
     private readonly Dictionary<NflPosition, List<DepthChartListing>> depthCharts = [];
 
-    public void AddPlayer(NflPosition position, Player player, int? depth = null)
+    public virtual void AddPlayer(NflPosition position, Player player, int? depth = null)
     {
         //Todo
+        var player1 = new Player(1, "Player One");
+        var player2 = new Player(2, "Player Two");
+
+        depthCharts[NflPosition.QB] = [new (player1, NflPosition.QB, 1), new (player2, NflPosition.QB, 2)];
     }
 
-    public Player? RemovePlayer(NflPosition position, Player player)
+    public virtual Player? RemovePlayer(NflPosition position, Player player)
     {
         //Todo
         return null;
     }
 
     // Get backups for a player at a given position
-    public List<Player> GetBackups(NflPosition position, Player player)
+    public virtual List<Player> GetBackups(NflPosition position, Player player)
     {
         //Todo
         return [];
-    }
-
-    // Return a copy of the list
-    private List<DepthChartListing> GetDepthChartListings(NflPosition position)
-    {
-        return depthCharts.ContainsKey(position) ? new List<DepthChartListing>(depthCharts[position]) : new List<DepthChartListing>();
     }
 
     public IReadOnlyDictionary<NflPosition, ReadOnlyCollection<DepthChartListing>> AsDictionary() => depthCharts.ToDictionary(
@@ -46,4 +44,11 @@ public class DepthChart
             .Select(position => $"{position.Key} – " +
                 String.Join(", ", position.Value.Select(listing => listing.ToString()))));
     }
+
+    // Return a copy of the list
+    private List<DepthChartListing> GetDepthChartListings(NflPosition position)
+    {
+        return depthCharts.ContainsKey(position) ? new List<DepthChartListing>(depthCharts[position]) : new List<DepthChartListing>();
+    }
+
 }
