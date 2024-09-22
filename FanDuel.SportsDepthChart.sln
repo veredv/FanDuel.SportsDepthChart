@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanDuel.SportsDepthChart.NF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanDuel.SportsDepthChart.Tests", "FanDuel.SportsDepthChart.Tests\FanDuel.SportsDepthChart.Tests.csproj", "{DDBD9314-914D-4DF8-9830-4C42FB5C316E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanDuel.SportsDepthChart.NFL.Core", "FanDuel.SportsDepthChart.NFL.Core\FanDuel.SportsDepthChart.NFL.Core.csproj", "{A1DF98EF-C076-4BD1-A889-5FB30D5C0AC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanDuel.SportsDepthChart.NFL.Core", "FanDuel.SportsDepthChart.NFL.Core\FanDuel.SportsDepthChart.NFL.Core.csproj", "{A1DF98EF-C076-4BD1-A889-5FB30D5C0AC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4B63D79F-6459-47FA-A27F-6F1958680ACD}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

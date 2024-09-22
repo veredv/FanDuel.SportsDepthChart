@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Xunit;
-using NSubstitute;
+﻿using NSubstitute;
 using FanDuel.SportsDepthChart.NFL.Domain.Entities;
 using FanDuel.SportsDepthChart.NFL.Domain.Models;
 using FanDuel.SportsDepthChart.NFL.Core;
 using FluentAssertions;
-using System.Numerics;
-using System.IO;
 
 namespace FanDuel.SportsDepthChart.Tests;
 
