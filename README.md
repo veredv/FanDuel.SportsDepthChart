@@ -14,10 +14,11 @@ following a layered architecture that separates concerns and across different do
 This design emphasizes the Single Responsibility Principle (SRP) by keeping domain models focused on encapsulating business logic
 
 I decided to use Enum (`NflPosition`) to denote well-defined positions, avoiding magic strings and improving maintainability.<br>
-Using string to denote positions will allow easy abuse of creating random positions that<br>
+Using string to denote positions will allow easy abuse of creating random positions that do not align with predefined roles,
+leading to potential inconsistencies in the depth chart and making it harder to enforce business rules or validate input.<br>
 Exceptions and preconditions are handled and documentation is provided as library usage is expected.
 The code adheres to the Dependency Inversion Principle (DIP), and unit tested at the different levels,
-including edge cases such null and exceptional scenarios. This fosters flexibilty maintainability, and adherence to best practices in object-oriented design.
+including edge cases such null and exceptional scenarios. This fosters flexibility maintainability, and adherence to best practices in object-oriented design.
 
 ### GetBackups
 Defined to return lists as described in the use cases to implement section.<br>
@@ -25,7 +26,7 @@ If output is needed, the overridden `ToString()` method can be used.
 ### RemovePlayerFromDepthChart
 Use cases conflict in return type - "return that player" vs "An empty list should be returned".<br>
 This can't be done in C#, and I made the decision to return the Player, or null in it's absence.
-The happy path should return a Player, making this the preffered choice.
+The happy path should return a Player, making this the preferred  choice.
 
 ### Data structures and complexity
 DepthChart is implemented using underlying Dictionary, with a random-access List as the dictionary value and a HashSet as another dictionary value.
@@ -49,13 +50,13 @@ O(n), where n is the number of players at the specified position.<br>
 The player has to be added at a specific depth, which may require shifting elements in the list.
 
 ### Trade-offs
-- Solution architecture for the current small-scope needs vs potential extentions and uses: <br>
+- Solution architecture for the current small-scope needs vs potential extensions and uses: <br>
 I gave a direction as to how to expand, but kept matters simple for the problem at hand.
 For instance, I didn't use interfaces - as there are no multiple implementations. 
 The Player record can later become an interface or an abstract class.
 It would make sense to create a general domain project for such entities.
 
-### Possible Extentions
+### Possible Extensions
 - A Team class can introduce validation to ensure players are assigned to the correct teams, checking for conflicts (e.g., preventing duplicate player numbers across teams).
 - We could add position-specific constraints, limiting players to valid positions based on their roles, enforcing rules through domain logic.
 - Strings for External Input: Using strings for positions as external input introduces flexibility but comes with the risk of invalid data. Enum constraints can be enforced afterward to validate inputs, ensuring that only valid positions are used.
@@ -63,20 +64,17 @@ It would make sense to create a general domain project for such entities.
 
 ## Prerequisites
 
-.NET 6.0 SDK or later
+.NET 8.0 SDK or later
 
 # Getting Started (Running the solution)
 
 1. Clone the repository:
-```git@github.com:veredv/FanDuel.SportsDepthChart.git```
-cd NFLDepthChart
+```git clone https://github.com/veredv/FanDuel.SportsDepthChart.git```
+cd FanDuel.SportsDepthChart
 
 2. Build the solution:
 dotnet build
 
 3. Run the tests:
 dotnet test
-
-4. Run the application:
-dotnet run --project src/NFL.DepthChart.CLI/NFL.DepthChart.CLI.csproj
 
